@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>brn475.gaoyuan.cool</title>
+    <style>
+        /* 重置样式无框透明 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .joingroup {
+            background-color: transparent;
+            border-radius: 0;
+            margin: 0;
+            padding: 50px 16px 24px;
+            box-shadow: none;
+            position: relative;
+        }
+        .group_info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+        /* 为消息动画提供相对定位基准 */
+        .headimg-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+        .headimg {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            display: block;
+            border: none;
+        }
+        /* 支付提示消息 动画后停留 */
+        .payment-toast-overlay {
+            position: absolute;
+            /* 初始位置在图片上方较远处 */
+            top: -56px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.78);
+            backdrop-filter: blur(8px);
+            color: white;
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-family: monospace;
+            opacity: 0;
+            transition: opacity 0.3s ease, top 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            pointer-events: none;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: 0.5px;
+            max-width: 85vw;
+            white-space: nowrap;
+            overflow-x: auto;
+            text-overflow: ellipsis;
+        }
+        /* 往下走效果上方偏上位置 */
+        .payment-toast-overlay.move-down {
+            top: -20px;
+            /* 停留在图片上方偏上位置 */
+        }
+        /* 单纯显示无动画 */
+        .payment-toast-overlay.show {
+            opacity: 1;
+        }
+        /* 手机端样式 字体大 */
+        @media (max-width: 768px) {
+            .payment-toast-overlay {
+                font-size: 16px;
+                padding: 10px 20px;
+                white-space: normal;
+                word-break: keep-all;
+                max-width: calc(100vw - 32px);
+                width: auto;
+                min-width: calc(100vw - 32px);
+                left: 50%;
+                transform: translateX(-50%);
+                border-radius: 24px;
+                top: -70px;
+                text-align: center;
+                line-height: 1.4;
+                box-sizing: border-box;
+            }
+            .payment-toast-overlay.move-down {
+                top: -28px;
+            }
+            /* 确保消息容器手机端足够 */
+            .headimg-wrapper {
+                margin-bottom: 20px;
+            }
+        }
+        /* PC端样式样字体大 */
+        @media (min-width: 769px) {
+            .payment-toast-overlay {
+                font-size: 18px;
+                padding: 12px 28px;
+                white-space: nowrap;
+                max-width: 500px;
+                min-width: 320px;
+                width: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                border-radius: 32px;
+                top: -64px;
+                text-align: center;
+                letter-spacing: 1px;
+                font-weight: 500;
+            }
+            .payment-toast-overlay.move-down {
+                top: -28px;
+            }
+            /* 调整头像包装器间距 */
+            .headimg-wrapper {
+                margin-bottom: 18px;
+            }
+        }
+        /* 兼容小屏幕手机 */
+        @media (max-width: 480px) {
+            .payment-toast-overlay {
+                font-size: 15px;
+                padding: 8px 16px;
+                min-width: calc(100vw - 24px);
+                max-width: calc(100vw - 24px);
+                border-radius: 20px;
+                top: -65px;
+            }
+            .payment-toast-overlay.move-down {
+                top: -24px;
+            }
+        }
+        .nickname {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 6px;
+        }
+        .nickname_txt {
+            display: inline-block;
+        }
+        .nickname_num {
+            font-weight: normal;
+            font-size: 16px;
+            color: #6c6c70;
+        }
+        .about {
+            font-size: 13px;
+            color: #8e8e93;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 6px;
+            position: relative;
+        }
+        /* about 一条透明连续实线 */
+        .about::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: rgba(128, 128, 128, 0.2);
+            border: none;
+        }
+        .container {
+            margin-top: 24px;
+            border-top: none;
+            padding-top: 16px;
+        }
+        .info p {
+            font-size: 14px;
+            color: #8e8e93;
+            line-height: 1.45;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        /* PC端最小宽度769px 将提示居中对齐 */
+        @media (min-width: 769px) {
+            .info {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            .info p {
+                justify-content: center;
+                text-align: center;
+                max-width: 500px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .info p em {
+                flex-shrink: 0;
+            }
+        }
+        /* 将感叹号标为点状况 */
+        .info p em {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23999999"><circle cx="12" cy="12" r="3" fill="%23999999"/></svg>') no-repeat center;
+            background-size: 12px 12px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .btnaddgroup {
+            background-color: #07c160;
+            color: white;
+            font-size: 17px;
+            font-weight: 500;
+            text-align: center;
+            padding: 12px 0;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 260px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            margin: 20px auto 0;
+            box-shadow: none;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
+        }
+        .btnaddgroup:active {
+            background-color: #06ad56;
+        }
+        /* 原底部消息移除隐藏 */
+        .message {
+            display: none;
+        }
+        @media (max-width: 480px) {
+            .joingroup {
+                margin: 0;
+                padding: 50px 12px 20px;
+            }
+            .btnaddgroup {
+                width: 90%;
+            }
+            .about::after {
+                width: 90%;
+                bottom: -18px;
+                background: rgba(128, 128, 128, 0.1);
+            }
+            .info p em {
+                background-size: 10px 10px;
+                width: 16px;
+                height: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div data-v-80119998="">
+    <div data-v-61320d00="" data-v-80119998="" class="joingroup">
+        <div data-v-61320d00="" class="group_info">
+            <!-- 群图片包装器，支付提示显示在图片上方偏上位置 -->
+            <div class="headimg-wrapper">
+                <img data-v-61320d00="" src="http://jdfcdn.2022gw.com/upload/20250508/681c6b4bd2421.jpg" class="headimg" alt="群头像">
+                <div class="payment-toast-overlay" id="imageToast">父叨扑*** 刚刚支付了9.9元</div>
+            </div>
+            <div data-v-61320d00="" class="nickname">
+                <div data-v-61320d00="" class="nickname_txt">
+                    高级吃🍉整合内部群 <span data-v-61320d00="" class="nickname_num" id="groupMemberCount">(356)</span>
+                </div>
+            </div>
+            <div data-v-61320d00="" class="about">
+                你和群里其他人都不是朋友关系，请注意隐私安全。
+            </div>
+        </div>
+        <div data-v-61320d00="" class="container">
+            <div data-v-61320d00="" class="info">
+                <p data-v-61320d00="">
+                    <em data-v-61320d00=""></em>该群聊人数较多，为减少新消息给你带来的打扰，建议谨慎加入。
+                </p>
+                <p data-v-61320d00="">
+                    <em data-v-61320d00=""></em>为维护微信平台绿色网络环境，请勿在群内传播违法违规内容。
+                </p>
+            </div>
+        </div>
+        <div data-v-61320d00="" style="display: flex; justify-content: center;">
+            <!-- 按钮为 a 标签链接，跳转支付链接，保留所有原有样式及交互效果 -->
+            <a href="https://www.example.com/pay?groupId=wechat_highlevel&amount=9.9" target="_blank" rel="noopener noreferrer" class="btnaddgroup" id="payButton">
+                <span data-v-61320d00="">立即支付9.9元入群</span>
+            </a>
+        </div>
+    </div>
+    <div data-v-14f66414="" data-v-80119998="">
+        <!---->
+    </div>
+    <!-- 完全隐藏旧消息区域，不再用于显示支付信息 -->
+    <div data-v-edccfbba="" data-v-80119998="" class="message fade" id="toastMessage" style="display: none;"></div>
+</div>
+
+<script>
+    (function() {
+        // 1. 随机人数功能 仅用于页面初始静态展示，按钮点击不再改变人数
+        function getRandomMemberCount() {
+            const min = 356;
+            const max = 457;
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        // 初始化显示随机群人数，之后保持静态，不再因按钮点击而变化
+        function initMemberCount() {
+            const memberCountSpan = document.getElementById('groupMemberCount');
+            if (memberCountSpan) {
+                const randomCount = getRandomMemberCount();
+                memberCountSpan.textContent = `(${randomCount})`;
+                console.log(`[初始化] 当前群成员人数(静态): ${randomCount}`);
+            }
+        }
+        
+        // 2. 支付信息消息: 进入页面3秒后首次提示，并执行“往下走效果” 移动到图片上方偏上位置，随后随机轮播且每次新消息都带有动画
+        const imageToast = document.getElementById('imageToast');
+        
+        // 丰富且多样的支付者名称池 (包含各种风格)
+        const namePrefix = [
+            '小甜心', '大橙子', '林间鹿', '风行者', '橘子汽水', '北岛', '南巷', '微凉', '追梦人', '星辰', 
+            '父叨扑', '清风', '明月', '小幸运', '向日葵', '奶茶不加糖', '夜归人', '听风者', '浅笑', '安然', 
+            '暖阳', '晨光', '晚风', '雨巷', '拾光', '柠檬不酸', '星野', '云朵', '鲸落', '暮色', '初晴', '青栀',
+            '独行者', '梦旅人', '山野间', '海风', '薄荷糖', '柚子茶', '半夏', '时光机', '旧巷子', '新雨',
+            '小确幸', '流浪猫', '北极星', '南风知意', '西窗烛', '东篱下', '烟火气', '人间味'
+        ];
+        
+        // 生成随机的支付者消息文本 格式: "xxx*** 刚刚支付了9.9元" - 纯文字，不含任何emoji
+        function getRandomPaymentMessage() {
+            const randomIndex = Math.floor(Math.random() * namePrefix.length);
+            let baseName = namePrefix[randomIndex];
+            // 多种星号后缀风格，增加随机性
+            const starSuffixList = ['***', '**', '*', '', '·', '***', '**', '~', '·', ''];
+            let suffix = starSuffixList[Math.floor(Math.random() * starSuffixList.length)];
+            // 父叨扑经典风格加强
+            if (baseName === '父叨扑' && Math.random() < 0.5) {
+                suffix = '***';
+            }
+            let fullName = baseName;
+            if (suffix) {
+                fullName = baseName + suffix;
+            }
+            // 纯文字消息，不添加任何emoji
+            return `${fullName} 刚刚支付了9.9元`;
+        }
+        
+        // 显示图片上方的支付提示，并执行“往下走”动画效果：从初始位置平滑移动到图片上方偏上位置
+        let currentHideTimer = null;
+        let currentAnimationTimer = null;
+        
+        // 重置消息位置到初始状态（不显示时清除动画类及样式）
+        function resetToastPosition() {
+            if (!imageToast) return;
+            // 移除动画类，回到初始位置定义 (opacity为0)
+            imageToast.classList.remove('move-down');
+            imageToast.classList.remove('show');
+        }
+        
+        // 核心: 显示新消息并执行"往下走到图片上方偏上位置"的动画
+        function showImageToastWithMoveDown(messageText, duration = 3200) {
+            if (!imageToast) return;
+            
+            // 清除之前的定时器，避免冲突
+            if (currentHideTimer) {
+                clearTimeout(currentHideTimer);
+                currentHideTimer = null;
+            }
+            if (currentAnimationTimer) {
+                clearTimeout(currentAnimationTimer);
+                currentAnimationTimer = null;
+            }
+            
+            // 重置所有状态 移除动画类和可见类，保证每次动画从初始上方开始
+            resetToastPosition();
+            
+            // 强制重绘，确保类移除生效后再添加新的动画流程
+            void imageToast.offsetHeight;
+            
+            // 更新消息内容
+            imageToast.textContent = messageText;
+            
+            // 第一步: 添加 show 类，使其可见 初始位置
+            imageToast.classList.add('show');
+            
+            // 第二步: 添加极短延迟后添加 move-down 类，触发平滑移动
+            currentAnimationTimer = setTimeout(() => {
+                if (imageToast && imageToast.classList.contains('show')) {
+                    imageToast.classList.add('move-down');
+                }
+                currentAnimationTimer = null;
+            }, 20);
+            
+            // 第三步: 设置总停留时间，然后淡出消失并复位
+            currentHideTimer = setTimeout(() => {
+                if (imageToast) {
+                    // 先移除move-down类和show类，实现淡出同时复位位置
+                    imageToast.classList.remove('move-down');
+                    imageToast.classList.remove('show');
+                    // 确保完全复位
+                    resetToastPosition();
+                }
+                currentHideTimer = null;
+            }, duration);
+        }
+        
+        // 启动随机轮播 递归setTimeout实现随机间隔，每次显示新消息并执行往下走效果
+        let carouselActive = false;
+        let carouselTimeoutId = null;
+        
+        function startRandomCarousel() {
+            if (!carouselActive) return;
+            
+            function scheduleNext() {
+                if (!carouselActive) return;
+                // 随机间隔 9~17 秒，让动态自然
+                const nextDelay = Math.floor(Math.random() * (17000 - 9000 + 1) + 9000);
+                carouselTimeoutId = setTimeout(() => {
+                    if (carouselActive) {
+                        const randomMsg = getRandomPaymentMessage();
+                        showImageToastWithMoveDown(randomMsg, 3200);
+                        console.log('[随机轮播支付消息+往下走动画] ' + randomMsg);
+                        scheduleNext(); // 递归调度下一次
+                    }
+                }, nextDelay);
+            }
+            
+            // 清除之前的调度防止重叠
+            if (carouselTimeoutId) {
+                clearTimeout(carouselTimeoutId);
+                carouselTimeoutId = null;
+            }
+            scheduleNext();
+        }
+        
+        function stopRandomCarousel() {
+            carouselActive = false;
+            if (carouselTimeoutId) {
+                clearTimeout(carouselTimeoutId);
+                carouselTimeoutId = null;
+            }
+        }
+        
+        // 进入页面3秒后首次提示支付消息 并执行往下走到图片上方偏上位置的动画
+        function showFirstPaymentMessage() {
+            setTimeout(() => {
+                const firstMsg = getRandomPaymentMessage();
+                // 首次消息同样触发“往下走效果”，移动到图片上方偏上位置
+                showImageToastWithMoveDown(firstMsg, 3200);
+                console.log('[首次支付消息+往下走效果] ' + firstMsg);
+                // 启动随机轮播（后续消息均具备相同动画）
+                carouselActive = true;
+                startRandomCarousel();
+            }, 3000);
+        }
+        
+        // 3. 支付按钮逻辑 添加链接跳转，保留震动交互，人数静态不变
+        const btnLink = document.getElementById('payButton');
+        
+        if (btnLink) {
+            btnLink.addEventListener('click', function(e) {
+                // 移动端轻微震动反馈
+                if (typeof navigator.vibrate === 'function') {
+                    navigator.vibrate(50);
+                }
+                console.log('[按钮点击] 支付链接跳转: ' + btnLink.href + ' ，群人数保持静态，无任何变化');
+                // a标签默认跳转行为正常执行
+            });
+        } else {
+            console.warn('未找到支付按钮');
+        }
+        
+        // 4. 头像加载失败容错
+        const imgElement = document.querySelector('.headimg');
+        if (imgElement) {
+            imgElement.onerror = function() {
+                this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23bdbdbd" rx="8"/%3E%3Ctext x="50" y="55" font-size="40" text-anchor="middle" fill="%23666"%3E群%3C/text%3E%3C/svg%3E';
+                this.style.objectFit = 'cover';
+            };
+            imgElement.style.display = 'block';
+        }
+        
+        //  5. 页面可见性处理，优化用户体验
+        function handleVisibilityChange() {
+            if (document.hidden) {
+                // 页面隐藏时暂停后续调度
+                if (carouselActive && carouselTimeoutId) {
+                    clearTimeout(carouselTimeoutId);
+                    carouselTimeoutId = null;
+                }
+            } else {
+                // 恢复后如果carouselActive为true且当前没有等待调度，则重新启动调度
+                if (carouselActive && !carouselTimeoutId) {
+                    startRandomCarousel();
+                }
+            }
+        }
+        
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        //  6. 页面初始化
+        // 初始化静态群人数 随机一次后永久不变
+        initMemberCount();
+        
+        // 确保图片上方提示初始完全复位 无显示，位置初始
+        if (imageToast) {
+            resetToastPosition();
+            imageToast.textContent = '支付动态实时更新';
+        }
+        
+        // 核心需求: 进入页面3秒后首次提示支付信息消息，随后随机轮播，每次消息都带有“往下走效果” 到头像图片上方偏上位置
+        showFirstPaymentMessage();
+        
+        // 页面卸载时清理所有定时器和动画相关
+        window.addEventListener('beforeunload', function() {
+            if (currentHideTimer) {
+                clearTimeout(currentHideTimer);
+                currentHideTimer = null;
+            }
+            if (currentAnimationTimer) {
+                clearTimeout(currentAnimationTimer);
+                currentAnimationTimer = null;
+            }
+            stopRandomCarousel();
+            if (carouselTimeoutId) {
+                clearTimeout(carouselTimeoutId);
+                carouselTimeoutId = null;
+            }
+            carouselActive = false;
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        });
+        
+        console.log('[初始化完成] 群成员人数静态随机值不变； 按钮链接跳转正常； 支付消息增强: PC端和手机端字体都更大、宽度更宽，每次显示新消息均会从上方滑入并停留在微信图片上方偏上位置，纯文字无表情符号，不遮挡图片主体； 白色外框移除，背景无框透明；PC端提示文字已居中显示；已添加透明连续实线分隔线；图标已替换为点状图标');
+    })();
+</script>
+</body>
+</html>
