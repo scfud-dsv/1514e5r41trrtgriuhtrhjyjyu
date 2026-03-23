@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>brn475.gaoyuan.cool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 80vh;
+            /* 外体页背元素 */
+            background-image: url('20260108_232603.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* 半透明遮罩层 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 主卡片容器 */
+        .image-window {
+            background: #fff;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        /* 图片区域 */
+        .image-square {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #1e1f2c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .image-square img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* 失效覆盖层盲 */
+        .expired-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 31, 44, 0.85);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-weight: 500;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+            pointer-events: none;   /* 让盖层不干扰，仅视觉效果 */
+        }
+
+        .expired-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.35s ease, visibility 0s linear 0s;
+            pointer-events: none;
+        }
+
+        .expired-icon {
+            font-size: 3.2rem;
+            margin-bottom: 0.8rem;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+        }
+
+        .expired-title {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            margin-bottom: 0.4rem;
+            background: linear-gradient(135deg, #fff, #e0e0e0);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .caption-area {
+            padding: 1.5rem 1.8rem 1.8rem 1.8rem;
+            background: #fff;
+            border-top: 1px solid #e9ecef;
+            transition: background 0.2s;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 失效时底部标记显示 */
+        .invalid-stamp {
+            display: none;
+        }
+
+        .image-window.expired-mode .invalid-stamp {
+            display: inline-flex;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 600px) {
+            .image-window {
+                max-width: 88vw;
+            }
+            .caption-area {
+                padding: 1.2rem 1.2rem 1.5rem 1.2rem;
+            }
+            .hint-text {
+                font-size: 0.95rem;
+                gap: 6px;
+            }
+            .sub-hint {
+                font-size: 0.62rem;
+                margin-top: 10px;
+                gap: 6px;
+            }
+            .pay-tag {
+                padding: 0.15rem 0.55rem;
+                font-size: 0.65rem;
+            }
+            .expired-title {
+                font-size: 1.1rem;
+            }
+            .expired-icon {
+                font-size: 2.6rem;
+            }
+        }
+
+        .hint-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 1.08rem;
+            font-weight: 600;
+            color: #121826;
+        }
+
+        .wechat-icon {
+            font-size: 1.25rem;
+            color: #000;
+        }
+
+        .pay-tag {
+           background: #0af;
+           color: white;
+           font-size: 1rem;
+           font-weight: 600;
+           padding: 0.2rem 0rem;
+           margin-left: 4px;
+           border-radius: 0px
+        }
+
+        .sub-hint {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 0.7rem;
+            color: #F00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="image-window" id="appContainer">
+    <div class="image-square">
+        <img src="1774210324328.png" alt="">
+        <div class="expired-overlay" id="expiredOverlay">
+            <div class="expired-icon">&#10060;</div>
+            <div class="expired-title">页面已失效或不存在！</div>
+        </div>
+    </div>
+    <div class="caption-area">
+        <div class="hint-text">
+            <span class="wechat-icon" style="font-size: 15px;">&#11034;</span>
+            <span>浏览器环境截图到微信扫码支付！</span>
+            <span class="pay-tag">使用QQ切记：后3位备注！</span>
+        </div>
+        <div class="sub-hint">
+            <span>&#8226;</span>
+            <span style="font-size: 15px;">&#8635; 截图后打开微信扫一扫</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // 用户刷新页面后，覆盖层自动移除，重新开始2分钟倒计时。
+        
+        const EXPIRY_DURATION_MS = 2 * 60 * 1000;   // 2分钟 = 120000毫秒
+        
+        const container = document.getElementById('appContainer');
+        const overlay = document.getElementById('expiredOverlay');
+        
+        // 定时器ID，用于在刷新或重置时清除之前的定时器
+        let expireTimer = null;
+        
+        // 当前是否处于失效模式（有覆盖层激活）
+        let isExpiredActive = false;
+        
+        // 隐藏覆盖层 (恢复正常模式)
+        function hideOverlay() {
+            if (!overlay) return;
+            // 移除active类，让覆盖层透明不可见
+            overlay.classList.remove('active');
+            // 同时移除容器上的expired-mode样式类 如果有，原来用于其他标记，但不影响主要功能
+            if (container) {
+                container.classList.remove('expired-mode');
+            }
+            isExpiredActive = false;
+        }
+        
+        // 显示覆盖层 (进入失效模式)
+        function showOverlay() {
+            if (!overlay) return;
+            // 添加active类显示遮罩层
+            overlay.classList.add('active');
+            if (container) {
+                container.classList.add('expired-mode');  // 保持兼容原有样式，无副作用
+            }
+            isExpiredActive = true;
+        }
+        
+        // 清除已有的失效定时器，防止冲突
+        function clearExpireTimer() {
+            if (expireTimer) {
+                clearTimeout(expireTimer);
+                expireTimer = null;
+            }
+        }
+        
+        // 启动2分钟失效计时器：到期后显示覆盖层
+        function startExpiryTimer() {
+            clearExpireTimer();      // 确保之前计时器取消
+            expireTimer = setTimeout(() => {
+                // 2分钟时间到，显示失效覆盖层
+                if (!isExpiredActive) {
+                    showOverlay();
+                }
+                expireTimer = null;
+            }, EXPIRY_DURATION_MS);
+        }
+        
+        // 重置页面时效状态: 清除覆盖层 + 重置定时器 + 全新2分钟周期
+        // 此方法在页面初始加载以及每次刷新时都会自动执行（刷新本质重新执行脚本）
+        function resetToNormalState() {
+            // 1. 先隐藏覆盖层（如果当前显示的话）
+            hideOverlay();
+            // 2. 清除之前遗留的任何定时器
+            clearExpireTimer();
+            // 3. 启动全新的2分钟倒计时
+            startExpiryTimer();
+        }
+        
+        // 监听页面可见性变化 (visibilitychange) 可选优化:
+        function onPageShow(event) {
+            // 当页面从bfcache恢复或者正常加载时，确保重置状态（因为bfcache会保持旧DOM状态）
+            // 我们需要重新初始化: 隐藏覆盖层，重新计时
+            // 注意: 这个事件在初始加载时也会触发，但不会影响正常初始化逻辑重复执行。
+            resetToNormalState();
+        }
+        
+        // 初始化函数: 用于首次执行和页面展示重置
+        function init() {
+            // 关键: 不管之前任何状态，都以全新无覆盖层 + 2分钟倒计时开始
+            resetToNormalState();
+        }
+        
+        // 注册pageshow事件，保证用户使用前进/后退/刷新等所有场景都能重置计时并移除覆盖层
+        window.addEventListener('pageshow', onPageShow);
+        init();
+    })();
+</script>
+</body>
+</html>
