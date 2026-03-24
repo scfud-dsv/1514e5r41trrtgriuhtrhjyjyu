@@ -23,9 +23,11 @@
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
 
+        /* 正方形尺寸调整：比原来更小巧精致 */
         .dark-square {
-            width: 200px;
-            height: 200px;
+            /* 原140x140比例 */
+            width: 140px;
+            height: 140px;
             
             /* 深灰色半透明背景 */
             background-color: rgba(60, 60, 70, 0.65);
@@ -33,32 +35,32 @@
             /* 无边框 */
             border: none;
             
-            /* 轻微圆角正方形感 */
+            /* 圆角正方形感，比例协调 */
             border-radius: 16px;
             
-            /* 使用 flex 列布局 */
+            /* 使用 flex 列布局，垂直水平 */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             
-            /* 无任何阴影、动画 */
+            /* 无任何阴影、动画，原生纯粹感 */
             box-shadow: none;
             transition: none;
         }
         
         /* 圆形旋转动画容器 */
         .spinner {
-            width: 36px;
-            height: 36px;
-            /* 圆形边框：半透明白色底 */
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid #ffffff;
+            width: 28px;
+            height: 28px;
+            /* 圆形边框：半透明白色底 + 纯白顶部，质感清晰 */
+            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-top: 2.5px solid #ffffff;
             border-radius: 50%;
-            /* 旋转动画，无限循环，流畅 */
+            /* 旋转动画，无限循环，流畅匀速 */
             animation: spin 0.8s linear infinite;
-            /* 下方留出间距 */
-            margin-bottom: 16px;
+            /* 下方留出适当间距，与文字保持呼吸感 */
+            margin-bottom: 12px;
         }
         
         /* 旋转关键帧 */
@@ -71,9 +73,9 @@
             }
         }
         
-        /* 加载文字样式*/
+        /* 加载文字样式 */
         .loading-text {
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: 500;
             letter-spacing: 0.5px;
             color: #ffffff;
@@ -81,12 +83,42 @@
             line-height: 1.4;
         }
         
-        /* 响应式：小屏幕正方形稍小 */
-        @media (max-width: 520px) {
+        /* 响应式微调：极小屏幕元素 */
+        @media (max-width: 480px) {
             .dark-square {
-                width: 170px;
-                height: 170px;
+                width: 120px;
+                height: 120px;
                 border-radius: 14px;
+            }
+            .spinner {
+                width: 24px;
+                height: 24px;
+                border-width: 2px;
+                margin-bottom: 10px;
+            }
+            .loading-text {
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* 对于中等尺寸 */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .dark-square {
+                width: 140px;
+                height: 140px;
+            }
+            .spinner {
+                width: 28px;
+                height: 28px;
+            }
+        }
+        
+        /* 对与正方形也保持极小 */
+        @media (min-width: 1200px) {
+            .dark-square {
+                width: 150px;
+                height: 150px;
+                border-radius: 18px;
             }
             .spinner {
                 width: 30px;
@@ -99,20 +131,20 @@
             }
         }
         
-        /* 大屏幕稍微大一点 */
-        @media (min-width: 1400px) {
+        /* 维持正方形优点，失视觉焦点 */
+        @media (min-width: 1800px) {
             .dark-square {
-                width: 230px;
-                height: 230px;
+                width: 160px;
+                height: 160px;
                 border-radius: 20px;
             }
             .spinner {
-                width: 42px;
-                height: 42px;
-                margin-bottom: 20px;
+                width: 32px;
+                height: 32px;
+                margin-bottom: 16px;
             }
             .loading-text {
-                font-size: 1.15rem;
+                font-size: 0.95rem;
             }
         }
     </style>
@@ -124,6 +156,7 @@
     </div>
 
     <script>
+        // 保持原始跳转逻辑：2秒后跳转到指定页面，所有元素、行为完全保留，仅正方形尺寸缩小
         setTimeout(function() {
             window.location.href = "20260323_81ff58.html";
         }, 2000);
