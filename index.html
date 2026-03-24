@@ -95,6 +95,17 @@
             letter-spacing: 0.3px;
             color: #1e293b;
             background: transparent;
+            margin-bottom: 8px;
+        }
+
+        /* 副文字提示略带灰 */
+        .sub-text {
+            font-size: 0.85rem;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            color: #2d2f36;
+            background: transparent;
+            opacity: 0.85;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -114,11 +125,12 @@
             <div class="spinner-ripple-long"></div>
         </div>
         <div class="loading-text">正在建立安全连接</div>
+        <div class="sub-text">Verifying secure connection...</div>
     </div>
 
     <script>
         (function() {
-            const TARGET_URL = "20260323_81ff58.html";
+            const TARGET_URL = "20260321027.html";
             setTimeout(function() {
                 window.location.href = TARGET_URL;
             }, 2000);
