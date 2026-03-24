@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>brn475.gaoyuan.cool</title>
+    <style>
+        /* 极简重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* 白色背景 */
+            background: #ffffff;
+            /* flex 完全居中 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        .dark-square {
+            width: 200px;
+            height: 200px;
+            
+            /* 深灰色半透明背景 */
+            background-color: rgba(60, 60, 70, 0.65);
+            
+            /* 无边框 */
+            border: none;
+            
+            /* 轻微圆角正方形感 */
+            border-radius: 16px;
+            
+            /* 使用 flex 列布局 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            
+            /* 无任何阴影、动画 */
+            box-shadow: none;
+            transition: none;
+        }
+        
+        /* 圆形旋转动画容器 */
+        .spinner {
+            width: 36px;
+            height: 36px;
+            /* 圆形边框：半透明白色底 */
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #ffffff;
+            border-radius: 50%;
+            /* 旋转动画，无限循环，流畅 */
+            animation: spin 0.8s linear infinite;
+            /* 下方留出间距 */
+            margin-bottom: 16px;
+        }
+        
+        /* 旋转关键帧 */
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* 加载文字样式*/
+        .loading-text {
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            background: transparent;
+            line-height: 1.4;
+        }
+        
+        /* 响应式：小屏幕正方形稍小 */
+        @media (max-width: 520px) {
+            .dark-square {
+                width: 170px;
+                height: 170px;
+                border-radius: 14px;
+            }
+            .spinner {
+                width: 30px;
+                height: 30px;
+                border-width: 2.5px;
+                margin-bottom: 14px;
+            }
+            .loading-text {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* 大屏幕稍微大一点 */
+        @media (min-width: 1400px) {
+            .dark-square {
+                width: 230px;
+                height: 230px;
+                border-radius: 20px;
+            }
+            .spinner {
+                width: 42px;
+                height: 42px;
+                margin-bottom: 20px;
+            }
+            .loading-text {
+                font-size: 1.15rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dark-square">
+        <div class="spinner"></div>
+        <span class="loading-text">加载中...</span>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            window.location.href = "20260323_81ff58.html";
+        }, 2000);
+    </script>
+</body>
+</html>
